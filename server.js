@@ -27,7 +27,7 @@ const json = JSON.parse(text.substring(start, end + 1));
 
     // Buscamos el socio por token
     console.log('Token buscado::' , token);
-    console.log('Primera fila:', JSON.stringify'[0]);
+    console.log('Primera fila:', JSON.stringify(filas[0]));
     const socio = filas.find(fila => {
       const valorToken = fila.c[5]?.v;
       console.log('Comparando:', valorToken, 'con', token);
