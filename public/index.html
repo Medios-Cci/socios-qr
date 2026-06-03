@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificar Socio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    #reader {
+      width: 300px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    #resultado {
+      margin-top: 24px;
+      width: 300px;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    #resultado.activo {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      color: #155724;
+    }
+
+    #resultado.inactivo {
+      background: #f8d7da;
+      border: 2px solid #dc3545;
+      color: #721c24;
+    }
+
+    #resultado.error {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      color: #856404;
+    }
+
+    .estado-texto {
+      font-size: 1.8em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .dato {
+      font-size: 1em;
+      margin: 4px 0;
+    }
+
+    button {
+      margin-top: 16px;
+      padding: 10px 24px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📷 Verificar Socio</h1>
+  <div id="reader"></div>
+  <div id="resultado"></div>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script>
+    const html5QrCode = new Html5Qrcode("reader");
+
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      async (texto) => {
+        await html5QrCode.stop();
+
+        const resultado = document.getElementById('resultado');
+        resultado.style.display = 'block';
+        resultado.innerHTML = '⏳ Verificando...';
+        resultado.className = '';
+
+        try {
+          // Extraemos el token de la URL del QR
+          const url = new URL(texto);
+          const token = url.pathname.split('/').pop();
+
+          const respuesta = await fetch(`/verificar/${token}`);
+          const data = await respuesta.json();
+
+          if (!data.encontrado) {
+            resultado.className = 'error';
+            resultado.innerHTML = `
+              <div class="estado-texto">⚠️ No encontrado</div>
+              <div class="dato">El QR no corresponde a ningún socio</div>
+              <button onclick="reiniciar()">Escanear otro</button>
+            `;
+            return;
+          }
+
+          resultado.className = data.activo ? 'activo' : 'inactivo';
+          resultado.innerHTML = `
+            <div class="estado-texto">${data.mensaje}</div>
+            <div class="dato"><strong>${data.nombre}</strong></div>
+            <div class="dato">${data.empresa}</div>
+            <div class="dato">N° ${data.numero_socio}</div>
+            <button onclick="reiniciar()">Escanear otro</button>
+          `;
+
+        } catch (error) {
+          resultado.className = 'error';
+          resultado.innerHTML = `
+            <div class="estado-texto">⚠️ Error</div>
+            <div class="dato">No se pudo verificar el QR</div>
+            <button onclick="reiniciar()">Intentar de nuevo</button>
+          `;
+        }
+      }
+    );
+
+    function reiniciar() {
+      document.getElementById('resultado').style.display = 'none';
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        arguments.callee
+      );
+    }
+  </script>
+
+</body>
+</html>
