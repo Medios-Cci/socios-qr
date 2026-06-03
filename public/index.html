@@ -3,150 +3,284 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verificar Socio</title>
+  <title>Credencial de Socio - CCI</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: sans-serif;
-      background: #f0f0f0;
+      font-family: 'Georgia', serif;
+      background: #111;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      justify-content: center;
       min-height: 100vh;
-    }
-
-    h1 {
-      font-size: 1.4em;
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    #reader {
-      width: 300px;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    #resultado {
-      margin-top: 24px;
-      width: 300px;
       padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      display: none;
     }
 
-    #resultado.activo {
-      background: #d4edda;
-      border: 2px solid #28a745;
-      color: #155724;
+    .credencial {
+      background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+      border: 2px solid #C9A84C;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(201, 168, 76, 0.3);
     }
 
-    #resultado.inactivo {
-      background: #f8d7da;
-      border: 2px solid #dc3545;
-      color: #721c24;
+    /* HEADER */
+    .header {
+      background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
+      border-bottom: 1px solid #C9A84C;
+      padding: 20px 20px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    #resultado.error {
-      background: #fff3cd;
-      border: 2px solid #ffc107;
-      color: #856404;
-    }
-
-    .estado-texto {
-      font-size: 1.8em;
-      font-weight: bold;
+    .logo {
+      height: 50px;
       margin-bottom: 10px;
     }
 
-    .dato {
-      font-size: 1em;
-      margin: 4px 0;
+    .titulo {
+      color: #C9A84C;
+      font-size: 1.3em;
+      font-weight: bold;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-align: center;
     }
 
-    button {
-      margin-top: 16px;
-      padding: 10px 24px;
-      background: #333;
-      color: white;
-      border: none;
-      border-radius: 8px;
+    /* NUMERO SOCIO */
+    .numero-badge {
+      background: #C9A84C;
+      color: #1a1a1a;
+      font-weight: bold;
       font-size: 1em;
-      cursor: pointer;
+      padding: 6px 24px;
+      border-radius: 20px;
+      margin: 12px auto;
+      display: inline-block;
+      letter-spacing: 1px;
+    }
+
+    /* DATOS */
+    .datos {
+      padding: 16px 24px;
+    }
+
+    .campo {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .campo-label {
+      color: #C9A84C;
+      font-size: 0.85em;
+      width: 70px;
+      flex-shrink: 0;
+    }
+
+    .campo-valor {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #C9A84C44;
+      border-radius: 6px;
+      color: white;
+      font-size: 0.9em;
+      padding: 6px 12px;
+      flex: 1;
+    }
+
+    /* ESTADO */
+    .estado-activo {
+      color: #28a745;
+      font-weight: bold;
+      font-size: 0.85em;
+      text-align: center;
+      letter-spacing: 2px;
+      margin: 4px 0 12px;
+    }
+
+    .estado-inactivo {
+      color: #dc3545;
+      font-weight: bold;
+      font-size: 0.85em;
+      text-align: center;
+      letter-spacing: 2px;
+      margin: 4px 0 12px;
+    }
+
+    /* QR */
+    .qr-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 0 16px;
+      border-top: 1px solid #C9A84C44;
+      border-bottom: 1px solid #C9A84C44;
+      margin: 0 24px;
+    }
+
+    .qr-section img {
+      border: 3px solid #C9A84C;
+      border-radius: 8px;
+      padding: 4px;
+      background: white;
+    }
+
+    .qr-texto {
+      color: #888;
+      font-size: 0.7em;
+      margin-top: 8px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    /* FOOTER */
+    .footer {
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .aviso {
+      color: #666;
+      font-size: 0.55em;
+      max-width: 180px;
+      line-height: 1.4;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .firma-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .firma-img {
+      height: 40px;
+      margin-bottom: 4px;
+    }
+
+    .firma-nombre {
+      color: #C9A84C;
+      font-size: 0.6em;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* LOADING / ERROR */
+    #cargando {
+      color: #C9A84C;
+      text-align: center;
+      padding: 40px;
+      font-size: 1.1em;
+    }
+
+    #error {
+      color: #dc3545;
+      text-align: center;
+      padding: 40px;
+      display: none;
     }
   </style>
 </head>
 <body>
 
-  <h1>📷 Verificar Socio</h1>
-  <div id="reader"></div>
-  <div id="resultado"></div>
+  <div id="cargando">⏳ Cargando credencial...</div>
+  <div id="error">⚠️ Credencial no encontrada</div>
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <div class="credencial" id="credencial" style="display:none">
+
+    <div class="header">
+      <img 
+        src="https://www.cciargentina.org.ar/images/logos/logo_dark_small.svg" 
+        alt="CCI Logo" 
+        class="logo"
+      />
+      <div class="titulo">Beneficios CCI</div>
+    </div>
+
+    <div style="text-align:center">
+      <span class="numero-badge" id="numero">Socio N°: ---</span>
+    </div>
+
+    <div class="datos">
+      <div class="campo">
+        <span class="campo-label">Nombre</span>
+        <span class="campo-valor" id="nombre"></span>
+      </div>
+      <div class="campo">
+        <span class="campo-label">Empresa</span>
+        <span class="campo-valor" id="empresa"></span>
+      </div>
+      <div id="estado-contenedor"></div>
+    </div>
+
+    <div class="qr-section">
+      <div id="qr"></div>
+      <p class="qr-texto">Presentá este QR en los comercios adheridos</p>
+    </div>
+
+    <div class="footer">
+      <p class="aviso">Esta tarjeta es intransferible y sólo puede ser utilizada por el titular</p>
+      <div class="firma-section">
+        <img 
+          src="http://fenix.org.ar/wp-content/uploads/2026/06/FirmaFarabola-Blanca-1.png" 
+          alt="Firma" 
+          class="firma-img"
+        />
+        <span class="firma-nombre">Claudio Farabola<br>Secretario General<br>Cámara de Comercio Italiana<br>en la República Argentina</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
   <script>
-    const html5QrCode = new Html5Qrcode("reader");
+    const token = window.location.pathname.split('/').pop();
 
-    html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: 250 },
-      async (texto) => {
-        await html5QrCode.stop();
+    async function cargarCredencial() {
+      try {
+        const respuesta = await fetch('/verificar/' + token);
+        const data = await respuesta.json();
 
-        const resultado = document.getElementById('resultado');
-        resultado.style.display = 'block';
-        resultado.innerHTML = '⏳ Verificando...';
-        resultado.className = '';
+        document.getElementById('cargando').style.display = 'none';
 
-        try {
-          // Extraemos el token de la URL del QR
-          const url = new URL(texto);
-          const token = url.pathname.split('/').pop();
-
-          const respuesta = await fetch(`/verificar/${token}`);
-          const data = await respuesta.json();
-
-          if (!data.encontrado) {
-            resultado.className = 'error';
-            resultado.innerHTML = `
-              <div class="estado-texto">⚠️ No encontrado</div>
-              <div class="dato">El QR no corresponde a ningún socio</div>
-              <button onclick="reiniciar()">Escanear otro</button>
-            `;
-            return;
-          }
-
-          resultado.className = data.activo ? 'activo' : 'inactivo';
-          resultado.innerHTML = `
-            <div class="estado-texto">${data.mensaje}</div>
-            <div class="dato"><strong>${data.nombre}</strong></div>
-            <div class="dato">${data.empresa}</div>
-            <div class="dato">N° ${data.numero_socio}</div>
-            <button onclick="reiniciar()">Escanear otro</button>
-          `;
-
-        } catch (error) {
-          resultado.className = 'error';
-          resultado.innerHTML = `
-            <div class="estado-texto">⚠️ Error</div>
-            <div class="dato">No se pudo verificar el QR</div>
-            <button onclick="reiniciar()">Intentar de nuevo</button>
-          `;
+        if (!data.encontrado) {
+          document.getElementById('error').style.display = 'block';
+          return;
         }
-      }
-    );
 
-    function reiniciar() {
-      document.getElementById('resultado').style.display = 'none';
-      html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        arguments.callee
-      );
+        document.getElementById('nombre').textContent = data.nombre;
+        document.getElementById('empresa').textContent = data.empresa;
+        document.getElementById('numero').textContent = 'Socio N°: ' + data.numero_socio;
+
+        const estadoDiv = document.getElementById('estado-contenedor');
+        if (data.activo) {
+          estadoDiv.innerHTML = '<div class="estado-activo">● SOCIO ACTIVO</div>';
+        } else {
+          estadoDiv.innerHTML = '<div class="estado-inactivo">● SOCIO INACTIVO</div>';
+        }
+
+        const qr = qrcode(0, 'M');
+        qr.addData(window.location.origin + '/verificar/' + token);
+        qr.make();
+        document.getElementById('qr').innerHTML = qr.createImgTag(4);
+
+        document.getElementById('credencial').style.display = 'block';
+
+      } catch (error) {
+        document.getElementById('cargando').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+      }
     }
+
+    cargarCredencial();
   </script>
 
 </body>
