@@ -24,7 +24,7 @@ app.get('/verificar/:token', async (req, res) => {
 
     // Buscamos el socio por token
     const socio = filas.find(fila => {
-      const valorToken = fila.c<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[5]</a>?.v;
+      const valorToken = fila.c[5]?.v;
 
     });
 
@@ -35,11 +35,11 @@ app.get('/verificar/:token', async (req, res) => {
       });
     }
 
-    const nombre = socio.c<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[0]</a>?.v || '';
-    const apellido = socio.c<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[1]</a>?.v || '';
-    const empresa = socio.c<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[2]</a>?.v || '';
-    const numero  = socio.c<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[3]</a>?.v || '';
-    const estado  = socio.c<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[4]</a>?.v || '';
+    const nombre = socio.c[0]?.v || '';
+const apellido = socio.c[1]?.v || '';
+const empresa = socio.c[2]?.v || '';
+const numero = socio.c[3]?.v || '';
+const estado = socio.c[4]?.v || '';
 
     const activo = estado.toLowerCase() === 'activo';
 
