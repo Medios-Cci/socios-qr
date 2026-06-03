@@ -19,7 +19,10 @@ app.get('/verificar/:token', async (req, res) => {
     const text = await response.text();
 
     // Google devuelve el JSON envuelto, hay que limpiarlo
-    const json = JSON.parse(text.substring(47, text.length - 2));
+    const start = text.indexOf('{');
+const end = text.lastIndexOf('}');
+const json = JSON.parse(text.substring(start, end + 1));
+
     const filas = json.table.rows;
 
     // Buscamos el socio por token
