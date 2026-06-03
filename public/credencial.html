@@ -1,1 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Credencial</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .credencial {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      width: 100%;
+      max-width: 360px;
+      overflow: hidden;
+    }
+
+    .header {
+      background: #1E5AA0;
+      color: white;
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .header h2 {
+      font-size: 0.85em;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-bottom: 6px;
+    }
+
+    .header h1 {
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    .header p {
+      font-size: 0.9em;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .estado-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 16px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .estado-badge.activo {
+      background: #28a745;
+      color: white;
+    }
+
+    .estado-badge.inactivo {
+      background: #dc3545;
+      color: white;
+    }
+
+    .qr-section {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .qr-section p {
+      font-size: 0.8em;
+      color: #999;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .footer {
+      background: #f8f8f8;
+      padding: 16px 20px;
+      text-align: center;
+      border-top: 1px solid #eee;
+    }
+
+    .footer span {
+      font-size: 0.8em;
+      color: #999;
+    }
+
+    .numero {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #1E5AA0;
+    }
+
+    #cargando {
+      text-align: center;
+      color: #666;
+      padding: 40px;
+    }
+
+    #error {
+      text-align: center;
+      color: #dc3545;
+      padding: 40px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cargando">⏳ Cargando credencial...</div>
+  <div id="error">⚠️ Credencial no encontrada</div>
+
+  <div class="credencial" id="credencial" style="display:none">
+    <div class="header">
+      <h2>Credencial de Socio</h2>
+      <h1 id="nombre"></h1>
+      <p id="empresa"></p>
+      <span class="estado-badge" id="estado-badge"></span>
+    </div>
+    <div class="qr-section">
+      <div id="qr"></div>
+      <p>Presentá este QR en los comercios adheridos</p>
+    </div>
+    <div class="footer">
+      <span>N° Socio: </span>
+      <span class="numero" id="numero"></span>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
+  <script>
+    // Obtenemos el token de la URL
+    // La URL se ve así: /socio/001-482910
+    const token = window.location.pathname.split('/').pop();
+
+    async function cargarCredencial() {
+      try {
+        const respuesta = await fetch(`/verificar/${token}`);
+        const data = await respuesta.json();
+
+        document.getElementById('cargando').style.display = 'none';
+
+        if (!data.encontrado) {
+          document.getElementById('error').style.display = 'block';
+          return;
+        }
+
+        // Llenamos los datos
+        document.getElementById('nombre').textContent = data.nombre;
+        document.getElementById('empresa').textContent = data.empresa;
+        document.getElementById('numero').textContent = data.numero_socio;
+
+        const badge = document.getElementById('estado-badge');
+        badge.textContent = data.activo ? '● ACTIVO' : '● INACTIVO';
+        badge.className = `estado-badge ${data.activo ? 'activo' : 'inactivo'}`;
+
+        // Generamos el QR
+        const qr = qrcode(0, 'M');
+        qr.addData(`${window.location.origin}/verificar/${token}`);
+        qr.make();
+        document.getElementById('qr').innerHTML = qr.createImgTag(5);
+
+        document.getElementById('credencial').style.display = 'block';
+
+      } catch (error) {
+        document.getElementById('cargando').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+      }
+    }
+
+    cargarCredencial();
+  </script>
+
+</body>
+</html>
 
