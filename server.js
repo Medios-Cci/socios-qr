@@ -29,11 +29,10 @@ const json = JSON.parse(text.substring(start, end + 1));
     console.log('Token buscado::' , token);
     console.log('Primera fila:', JSON.stringify(filas[0]));
     const socio = filas.find(fila => {
-      const valorToken = fila.c[5]?.v;
-      console.log('Comparando:', valorToken, 'con', token);
-      return String(valorToken) === String(token);
-
-    });
+  if (!fila || !fila.c || !fila.c<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[5]</a>) return false;
+  const valorToken = fila.c<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[5]</a>?.v;
+  return String(valorToken).trim() === String(token).trim();
+});
 
     if (!socio) {
       return res.json({
