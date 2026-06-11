@@ -29,8 +29,8 @@ const json = JSON.parse(text.substring(start, end + 1));
     console.log('Token buscado::' , token);
     console.log('Primera fila:', JSON.stringify(filas[0]));
     const socio = filas.find(fila => {
-  if (!fila || !fila.c || !fila.c<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[5]</a>) return false;
-  const valorToken = fila.c<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[5]</a>?.v;
+  if (!fila || !fila.c || !fila.c) return false;
+  const valorToken = fila.c?.v;
   return String(valorToken).trim() === String(token).trim();
 });
 
