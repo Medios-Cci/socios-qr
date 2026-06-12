@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificar Socio - CCI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      color: white;
+    }
+
+    h1 {
+      color: #C9A84C;
+      font-size: 1.3em;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      border: 2px solid #C9A84C;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    #resultado {
+      display: none;
+      background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+      border: 2px solid #C9A84C;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      padding: 24px;
+      margin-top: 20px;
+    }
+
+    .estado-activo {
+      color: #28a745;
+      font-weight: bold;
+      font-size: 1.2em;
+      text-align: center;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .estado-inactivo {
+      color: #dc3545;
+      font-weight: bold;
+      font-size: 1.2em;
+      text-align: center;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .campo {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .campo-label {
+      color: #C9A84C;
+      font-size: 0.85em;
+      width: 70px;
+      flex-shrink: 0;
+    }
+
+    .campo-valor {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #C9A84C44;
+      border-radius: 6px;
+      color: white;
+      font-size: 0.9em;
+      padding: 6px 12px;
+      flex: 1;
+    }
+
+    #btn-nuevo {
+      background: #C9A84C;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 30px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 16px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Verificar Socio CCI</h1>
+  <div id="reader"></div>
+  <div id="resultado">
+    <div id="estado-contenedor"></div>
+    <div class="campo">
+      <span class="campo-label">Nombre</span>
+      <span class="campo-valor" id="nombre"></span>
+    </div>
+    <div class="campo">
+      <span class="campo-label">Empresa</span>
+      <span class="campo-valor" id="empresa"></span>
+    </div>
+    <div class="campo">
+      <span class="campo-label">N° Socio</span>
+      <span class="campo-valor" id="numero"></span>
+    </div>
+    <button id="btn-nuevo" onclick="reiniciar()">Escanear otro</button>
+  </div>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script>
+    const html5QrCode = new Html5Qrcode("reader");
+
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      async (decodedText) => {
+        await html5QrCode.stop();
+
+        // Extraemos el token de la URL escaneada
+        const token = decodedText.split('/').pop();
+
+        const respuesta = await fetch('/verificar/' + token);
+        const data = await respuesta.json();
+
+        const estadoDiv = document.getElementById('estado-contenedor');
+
+        if (!data.encontrado) {
+          estadoDiv.innerHTML = '<div class="estado-inactivo">⚠️ SOCIO NO ENCONTRADO</div>';
+        } else if (data.activo) {
+          estadoDiv.innerHTML = '<div class="estado-activo">✅ SOCIO ACTIVO</div>';
+        } else {
+          estadoDiv.innerHTML = '<div class="estado-inactivo">❌ SOCIO INACTIVO</div>';
+        }
+
+        document.getElementById('nombre').textContent = data.nombre || '-';
+        document.getElementById('empresa').textContent = data.empresa || '-';
+        document.getElementById('numero').textContent = data.numero_socio || '-';
+
+        document.getElementById('resultado').style.display = 'block';
+      }
+    );
+
+    function reiniciar() {
+      document.getElementById('resultado').style.display = 'none';
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        async (decodedText) => {
+          await html5QrCode.stop();
+          const token = decodedText.split('/').pop();
+          const respuesta = await fetch('/verificar/' + token);
+          const data = await respuesta.json();
+          // misma lógica de arriba
+          location.reload();
+        }
+      );
+    }
+  </script>
+
+</body>
+</html>
