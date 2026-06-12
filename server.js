@@ -31,8 +31,12 @@ const json = JSON.parse(text.substring(start, end + 1));
     const socio = filas.find(fila => {
   if (!fila || !fila.c || !fila.c) return false;
   const valorToken = fila.c?.v;
+      if (String(valorToken).trim() === String(token).trim()) {
+    console.log('✅ ENCONTRADO:', valorToken);
+  }
   return String(valorToken).trim() === String(token).trim();
 });
+    console.log('Total filas procesadas:', filas.length);
 
     if (!socio) {
       return res.json({
