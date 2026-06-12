@@ -31,8 +31,9 @@ const json = JSON.parse(text.substring(start, end + 1));
     const socio = filas.find(fila => {
   if (!fila || !fila.c || !fila.c) return false;
   const valorToken = fila.c?.v;
-      if (String(valorToken).trim() === String(token).trim()) {
-    console.log('✅ ENCONTRADO:', valorToken);
+      // Log temporal para ver el token exacto
+      if (String(valorToken).includes('1342')) {
+    console.log('>>> FILA CON 1342:', JSON.stringify(fila.c));
   }
   return String(valorToken).trim() === String(token).trim();
 });
