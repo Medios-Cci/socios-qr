@@ -6,10 +6,25 @@ const app = express();
 app.use(cors());
 app.use(express.static('public'));
 
-// ✅ AGREGAR ESTO - para que el SW funcione correctamente
+// ✅ Primero el manifest dinámico
+app.get('/manifest/:token', async (req, res) => {
+  // ... código de arriba
+});
+
+// ✅ Después el SW
 app.get('/sw.js', (req, res) => {
   res.setHeader('Service-Worker-Allowed', '/');
   res.sendFile(__dirname + '/public/sw.js');
+});
+
+// ✅ Después el verificar
+app.get('/verificar/:token', async (req, res) => {
+  // ... tu código actual
+});
+
+// ✅ Último el socio
+app.get('/socio/:token', async (req, res) => {
+  res.sendFile(__dirname + '/public/credencial.html');
 });
 
 const SHEET_ID = '1hW4aOcI4IofHLZ8Lw3z_foyKHGmE9y7RS8a29O9-gvs';
