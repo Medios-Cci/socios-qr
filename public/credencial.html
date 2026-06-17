@@ -198,6 +198,76 @@
       display: none;
     }
   </style>
+
+<script>
+  // Genera un manifest dinámico con el token del socio
+  const token = window.location.pathname.split('/').pop();
+  
+  const manifestData = {
+    "name": "Credencial CCI",
+    "short_name": "CCI",
+    "description": "Credencial digital de socio CCI Argentina",
+    "start_url": "/socio/" + token,
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#111111",
+    "theme_color": "#C9A84C",
+    "icons": [
+      {
+        "src": "/icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "/icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "maskable"
+      },
+      {
+        "src": "/icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "/icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable"
+      }
+    ],
+    "screenshots": [
+      {
+        "src": "/icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "form_factor": "narrow",
+        "label": "Credencial CCI"
+      },
+      {
+        "src": "/icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "form_factor": "wide",
+        "label": "Credencial CCI"
+      }
+    ]
+  };
+
+  // Crea el manifest como blob y lo inyecta
+  const blob = new Blob(
+    [JSON.stringify(manifestData)], 
+    {type: 'application/manifest+json'}
+  );
+  const manifestURL = URL.createObjectURL(blob);
+  document
+    .querySelector('link[rel="manifest"]')
+    .setAttribute('href', manifestURL);
+</script>
+
+  
 </head>
 <body>
 
