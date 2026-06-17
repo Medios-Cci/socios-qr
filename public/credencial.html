@@ -13,6 +13,13 @@
   <link rel="apple-touch-icon" href="/icon-192.png">
   <meta name="theme-color" content="#C9A84C">
   <!-- ✅ HASTA ACÁ -->
+
+ <!-- manifest dinámico con token -->
+  <script>
+    const token = window.location.pathname.split('/').pop();
+    document.getElementById('manifest-link')
+            .setAttribute('href', '/manifest/' + token);
+  </script>
   
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
