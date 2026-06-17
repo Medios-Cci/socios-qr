@@ -6,6 +6,12 @@ const app = express();
 app.use(cors());
 app.use(express.static('public'));
 
+// ✅ AGREGAR ESTO - para que el SW funcione correctamente
+app.get('/sw.js', (req, res) => {
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.sendFile(__dirname + '/public/sw.js');
+});
+
 const SHEET_ID = '1hW4aOcI4IofHLZ8Lw3z_foyKHGmE9y7RS8a29O9-gvs';
 const SHEET_NAME = 'Socios CCI';
 const URL_SHEET = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
