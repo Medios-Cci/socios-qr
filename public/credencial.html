@@ -14,12 +14,6 @@
   <meta name="theme-color" content="#C9A84C">
   <!-- ✅ HASTA ACÁ -->
 
- <!-- manifest dinámico con token -->
-  <script>
-    const token = window.location.pathname.split('/').pop();
-    document.getElementById('manifest-link')
-            .setAttribute('href', '/manifest/' + token);
-  </script>
   
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -317,7 +311,7 @@
       <p class="aviso">Esta tarjeta es intransferible y sólo puede ser utilizada por el titular</p>
       <div class="firma-section">
         <img 
-          src="http://fenix.org.ar/wp-content/uploads/2026/06/FirmaFarabola-Blanca-1.png" 
+          src="https://fenix.org.ar/wp-content/uploads/2026/06/FirmaFarabola-Blanca-1.png" 
           alt="Firma" 
           class="firma-img"
         />
@@ -327,56 +321,62 @@
 
   </div>
 
-  <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
-  <script>
-    const token = window.location.pathname.split('/').pop();
+ <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+  // ✅ Token declarado UNA SOLA VEZ acá
+  const token = window.location.pathname.split('/').pop();
 
-    async function cargarCredencial() {
-      try {
-        const respuesta = await fetch('/verificar/' + token);
-        const data = await respuesta.json();
+  // ✅ Manifest dinámico (ahora el DOM ya existe)
+  document.getElementById('manifest-link')
+          .setAttribute('href', '/manifest/' + token);
 
-        document.getElementById('cargando').style.display = 'none';
+  // ✅ Registrar Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log('✅ PWA lista'))
+      .catch(err => console.log('SW error:', err));
+  }
 
-        if (!data.encontrado) {
-          document.getElementById('error').style.display = 'block';
-          return;
-        }
+  // ✅ Tu función original
+  async function cargarCredencial() {
+    try {
+      const respuesta = await fetch('/verificar/' + token);
+      const data = await respuesta.json();
 
-        document.getElementById('nombre').textContent = data.nombre;
-        document.getElementById('empresa').textContent = data.empresa;
-        document.getElementById('numero').textContent = 'Socio N°: ' + data.numero_socio;
+      document.getElementById('cargando').style.display = 'none';
 
-        const estadoDiv = document.getElementById('estado-contenedor');
-        if (data.activo) {
-          estadoDiv.innerHTML = '<div class="estado-activo">● SOCIO ACTIVO</div>';
-        } else {
-          estadoDiv.innerHTML = '<div class="estado-inactivo">● SOCIO INACTIVO</div>';
-        }
-
-        const qr = qrcode(0, 'M');
-        qr.addData(window.location.origin + '/verificar/' + token);
-        qr.make();
-        document.getElementById('qr').innerHTML = qr.createImgTag(4);
-
-        document.getElementById('credencial').style.display = 'block';
-
-      } catch (error) {
-        document.getElementById('cargando').style.display = 'none';
+      if (!data.encontrado) {
         document.getElementById('error').style.display = 'block';
+        return;
       }
-    }
 
-    cargarCredencial();
+      document.getElementById('nombre').textContent = data.nombre;
+      document.getElementById('empresa').textContent = data.empresa;
+      document.getElementById('numero').textContent = 'Socio N°: ' + data.numero_socio;
 
-    // ✅ Registrar SW 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log('✅ PWA lista'))
-        .catch(err => console.log('SW error:', err));
+      const estadoDiv = document.getElementById('estado-contenedor');
+      if (data.activo) {
+        estadoDiv.innerHTML = '<div class="estado-activo">● SOCIO ACTIVO</div>';
+      } else {
+        estadoDiv.innerHTML = '<div class="estado-inactivo">● SOCIO INACTIVO</div>';
+      }
+
+      const qr = qrcode(0, 'M');
+      qr.addData(window.location.origin + '/verificar/' + token);
+      qr.make();
+      document.getElementById('qr').innerHTML = qr.createImgTag(4);
+
+      document.getElementById('credencial').style.display = 'block';
+
+    } catch (error) {
+      document.getElementById('cargando').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
     }
-    
-  </script>
+  }
+
+  cargarCredencial();
+</script>
+
 
 </body>
 </html>
