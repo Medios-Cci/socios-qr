@@ -294,10 +294,14 @@
         document.getElementById('credencial').style.display = 'block';
 
       } catch (error) {
-        document.getElementById('cargando').style.display = 'none';
-        document.getElementById('error').style.display = 'block';
-      }
-    }
+    // ✅ Mostrar el error real
+    console.log('❌ Error completo:', error);
+    console.log('❌ Error mensaje:', error.message);
+    console.log('❌ Error tipo:', error.name);
+    document.getElementById('cargando').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+  }
+}
 
     cargarCredencial();
   </script>
