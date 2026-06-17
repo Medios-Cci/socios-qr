@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Credencial de Socio - CCI</title>
+
+  <link id="manifest-link" rel="manifest" href="/manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Credencial CCI">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#C9A84C">
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -28,7 +37,6 @@
       box-shadow: 0 0 30px rgba(201, 168, 76, 0.3);
     }
 
-    /* HEADER */
     .header {
       background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
       border-bottom: 1px solid #C9A84C;
@@ -52,7 +60,6 @@
       text-align: center;
     }
 
-    /* NUMERO SOCIO */
     .numero-badge {
       background: #C9A84C;
       color: #1a1a1a;
@@ -65,7 +72,6 @@
       letter-spacing: 1px;
     }
 
-    /* DATOS */
     .datos {
       padding: 16px 24px;
     }
@@ -93,7 +99,6 @@
       flex: 1;
     }
 
-    /* ESTADO */
     .estado-activo {
       color: #28a745;
       font-weight: bold;
@@ -112,7 +117,6 @@
       margin: 4px 0 12px;
     }
 
-    /* QR */
     .qr-section {
       display: flex;
       flex-direction: column;
@@ -138,7 +142,6 @@
       letter-spacing: 1px;
     }
 
-    /* FOOTER */
     .footer {
       padding: 16px 24px;
       display: flex;
@@ -173,7 +176,6 @@
       line-height: 1.4;
     }
 
-    /* LOADING / ERROR */
     #cargando {
       color: #C9A84C;
       text-align: center;
@@ -230,7 +232,7 @@
       <p class="aviso">Esta tarjeta es intransferible y sólo puede ser utilizada por el titular</p>
       <div class="firma-section">
         <img 
-          src="http://fenix.org.ar/wp-content/uploads/2026/06/FirmaFarabola-Blanca-1.png" 
+          src="https://fenix.org.ar/wp-content/uploads/2026/06/FirmaFarabola-Blanca-1.png" 
           alt="Firma" 
           class="firma-img"
         />
@@ -240,16 +242,33 @@
 
   </div>
 
+  <!-- ✅ SCRIPTS AL FINAL - token declarado UNA SOLA VEZ -->
   <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
   <script>
     const token = window.location.pathname.split('/').pop();
 
-    async function cargarCredencial() {
-      try {
-        const respuesta = await fetch('/verificar/' + token);
-        const data = await respuesta.json();
+    // Manifest dinámico con token del socio
+    document.getElementById('manifest-link')
+            .setAttribute('href', '/manifest/' + token);
 
-        document.getElementById('cargando').style.display = 'none';
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('✅ PWA lista'))
+        .catch(err => console.log('SW error:', err));
+    }
+
+   async function cargarCredencial() {
+  try {
+    console.log('🔍 Buscando token:', token);
+    
+    const respuesta = await fetch('/verificar/' + token);
+    console.log('📡 Status respuesta:', respuesta.status);
+    
+    const data = await respuesta.json();
+    console.log('📦 Data recibida:', data);
+
+    document.getElementById('cargando').style.display = 'none';
 
         if (!data.encontrado) {
           document.getElementById('error').style.display = 'block';
@@ -275,10 +294,14 @@
         document.getElementById('credencial').style.display = 'block';
 
       } catch (error) {
-        document.getElementById('cargando').style.display = 'none';
-        document.getElementById('error').style.display = 'block';
-      }
-    }
+    // ✅ Mostrar el error real
+    console.log('❌ Error completo:', error);
+    console.log('❌ Error mensaje:', error.message);
+    console.log('❌ Error tipo:', error.name);
+    document.getElementById('cargando').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+  }
+}
 
     cargarCredencial();
   </script>
