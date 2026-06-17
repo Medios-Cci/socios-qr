@@ -6,32 +6,52 @@ const app = express();
 app.use(cors());
 app.use(express.static('public'));
 
-// ✅ Primero el manifest dinámico
-app.get('/manifest/:token', async (req, res) => {
-  // ... código de arriba
+const SHEET_ID = '1hW4aOcI4IofHLZ8Lw3z_foyKHGmE9y7RS8a29O9-gvs';
+const SHEET_NAME = 'Socios CCI';
+const URL_SHEET = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+// Manifest dinámico por token
+app.get('/manifest/:token', (req, res) => {
+  const token = req.params.token;
+  const base = 'https://socios-qr-wallet.onrender.com';
+
+  const manifest = {
+    name: 'Credencial CCI',
+    short_name: 'CCI',
+    description: 'Credencial digital de socio CCI Argentina',
+    start_url: `${base}/socio/${token}`,
+    scope: `${base}/`,
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#111111',
+    theme_color: '#C9A84C',
+    icons: [
+      {
+        src: `${base}/icon-192.png`,
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'any'
+      },
+      {
+        src: `${base}/icon-512.png`,
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'any'
+      }
+    ]
+  };
+
+  res.setHeader('Content-Type', 'application/manifest+json');
+  res.json(manifest);
 });
 
-// ✅ Después el SW
+// Service Worker
 app.get('/sw.js', (req, res) => {
   res.setHeader('Service-Worker-Allowed', '/');
   res.sendFile(__dirname + '/public/sw.js');
 });
 
-// ✅ Después el verificar
-app.get('/verificar/:token', async (req, res) => {
-  // ... tu código actual
-});
-
-// ✅ Último el socio
-app.get('/socio/:token', async (req, res) => {
-  res.sendFile(__dirname + '/public/credencial.html');
-});
-
-const SHEET_ID = '1hW4aOcI4IofHLZ8Lw3z_foyKHGmE9y7RS8a29O9-gvs';
-const SHEET_NAME = 'Socios CCI';
-const URL_SHEET = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
-
-// Endpoint que verifica el token del QR
+// Verificar token
 app.get('/verificar/:token', async (req, res) => {
   const token = req.params.token;
 
@@ -39,24 +59,24 @@ app.get('/verificar/:token', async (req, res) => {
     const response = await fetch(URL_SHEET);
     const text = await response.text();
 
-    // Google devuelve el JSON envuelto, hay que limpiarlo
     const start = text.indexOf('{');
-const end = text.lastIndexOf('}');
-const json = JSON.parse(text.substring(start, end + 1));
+    const end = text.lastIndexOf('}');
+    const json = JSON.parse(text.substring(start, end + 1));
 
     const filas = json.table.rows;
 
-    // Buscamos el socio por token
-    console.log('Token buscado::' , token);
+    console.log('Token buscado:', token);
     console.log('Primera fila:', JSON.stringify(filas[0]));
+
     const socio = filas.find(fila => {
   if (!fila || !fila.c || !fila.c[5]) return false;
 const valorToken = fila.c[5]?.v;
 if (String(valorToken).includes('1349')) {
   console.log('>>> FILA CON 1349:', JSON.stringify(fila.c[5]));
 }
-return String(valorToken).trim() === String(token).trim();
-});
+      return String(valorToken).trim() === String(token).trim();
+    });
+
     console.log('Total filas procesadas:', filas.length);
 
     if (!socio) {
@@ -66,12 +86,12 @@ return String(valorToken).trim() === String(token).trim();
       });
     }
 
-    const nombre = socio.c[0]?.v || '';
-const apellido = socio.c[1]?.v || '';
-const empresa = socio.c[2]?.v || '';
-const numero = socio.c[3]?.v || '';
-const estado = socio.c[4]?.v || '';
-
+       const nombre = socio.c[0]?.v || '';
+       const apellido = socio.c[1]?.v || '';
+       const empresa = socio.c[2]?.v || '';
+       const numero = socio.c[3]?.v || '';
+       const estado = socio.c[4]?.v || '';
+    
     const activo = estado.toLowerCase() === 'activo';
 
     return res.json({
@@ -90,8 +110,8 @@ const estado = socio.c[4]?.v || '';
   }
 });
 
-// Endpoint que devuelve la credencial del socio
-app.get('/socio/:token', async (req, res) => {
+// Credencial visual
+app.get('/socio/:token', (req, res) => {
   res.sendFile(__dirname + '/public/credencial.html');
 });
 
