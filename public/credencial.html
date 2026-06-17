@@ -258,12 +258,17 @@
         .catch(err => console.log('SW error:', err));
     }
 
-    async function cargarCredencial() {
-      try {
-        const respuesta = await fetch('/verificar/' + token);
-        const data = await respuesta.json();
+   async function cargarCredencial() {
+  try {
+    console.log('🔍 Buscando token:', token);
+    
+    const respuesta = await fetch('/verificar/' + token);
+    console.log('📡 Status respuesta:', respuesta.status);
+    
+    const data = await respuesta.json();
+    console.log('📦 Data recibida:', data);
 
-        document.getElementById('cargando').style.display = 'none';
+    document.getElementById('cargando').style.display = 'none';
 
         if (!data.encontrado) {
           document.getElementById('error').style.display = 'block';
