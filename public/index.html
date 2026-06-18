@@ -247,23 +247,31 @@
  <!-- REEMPLAZÁ ESTE BLOQUE (al final del body) -->
 <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
 <script>
-  // Intentar obtener token de la URL primero
-  const tokenURL = window.location.pathname.split('/').pop();
 
-  // Si la URL tiene token válido, guardarlo en localStorage
-  if (tokenURL && tokenURL.length > 5) {
-    localStorage.setItem('cci_token', tokenURL);
-    cargarCredencial(tokenURL);
+  const match = window.location.pathname.match(/^\/socio\/([^\/]+)$/);
+
+if (match) {
+  const token = match[1];
+
+  localStorage.setItem('cci_token', token);
+
+  console.log('Token detectado:', token);
+
+  cargarCredencial(token);
+
+} else {
+
+  const tokenGuardado = localStorage.getItem('cci_token');
+
+  console.log('Token recuperado:', tokenGuardado);
+
+  if (tokenGuardado) {
+    cargarCredencial(tokenGuardado);
   } else {
-    // Si no hay token en URL, buscar en localStorage (caso iOS PWA)
-    const tokenGuardado = localStorage.getItem('cci_token');
-    if (tokenGuardado && tokenGuardado !== '') {
-      cargarCredencial(tokenGuardado);
-    } else {
-      document.getElementById('cargando').style.display = 'none';
-      document.getElementById('error').style.display = 'block';
-    }
+    document.getElementById('cargando').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
   }
+}
 
   async function cargarCredencial(token) {
     try {
