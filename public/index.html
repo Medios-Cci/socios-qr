@@ -240,48 +240,64 @@
 
   </div>
 
-  <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
-  <script>
-    const token = window.location.pathname.split('/').pop();
+ <!-- REEMPLAZÁ ESTE BLOQUE (al final del body) -->
+<script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+  // Intentar obtener token de la URL primero
+  const tokenURL = window.location.pathname.split('/').pop();
 
-    async function cargarCredencial() {
-      try {
-        const respuesta = await fetch('/verificar/' + token);
-        const data = await respuesta.json();
-
-        document.getElementById('cargando').style.display = 'none';
-
-        if (!data.encontrado) {
-          document.getElementById('error').style.display = 'block';
-          return;
-        }
-
-        document.getElementById('nombre').textContent = data.nombre;
-        document.getElementById('empresa').textContent = data.empresa;
-        document.getElementById('numero').textContent = 'Socio N°: ' + data.numero_socio;
-
-        const estadoDiv = document.getElementById('estado-contenedor');
-        if (data.activo) {
-          estadoDiv.innerHTML = '<div class="estado-activo">● SOCIO ACTIVO</div>';
-        } else {
-          estadoDiv.innerHTML = '<div class="estado-inactivo">● SOCIO INACTIVO</div>';
-        }
-
-        const qr = qrcode(0, 'M');
-        qr.addData(window.location.origin + '/verificar/' + token);
-        qr.make();
-        document.getElementById('qr').innerHTML = qr.createImgTag(4);
-
-        document.getElementById('credencial').style.display = 'block';
-
-      } catch (error) {
-        document.getElementById('cargando').style.display = 'none';
-        document.getElementById('error').style.display = 'block';
-      }
+  // Si la URL tiene token válido, guardarlo en localStorage
+  if (tokenURL && tokenURL.length > 5) {
+    localStorage.setItem('cci_token', tokenURL);
+    cargarCredencial(tokenURL);
+  } else {
+    // Si no hay token en URL, buscar en localStorage (caso iOS PWA)
+    const tokenGuardado = localStorage.getItem('cci_token');
+    if (tokenGuardado && tokenGuardado !== '') {
+      cargarCredencial(tokenGuardado);
+    } else {
+      document.getElementById('cargando').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
     }
+  }
 
-    cargarCredencial();
-  </script>
+  async function cargarCredencial(token) {
+    try {
+      const respuesta = await fetch('/verificar/' + token);
+      const data = await respuesta.json();
+
+      document.getElementById('cargando').style.display = 'none';
+
+      if (!data.encontrado) {
+        document.getElementById('error').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('nombre').textContent = data.nombre;
+      document.getElementById('empresa').textContent = data.empresa;
+      document.getElementById('numero').textContent = 'Socio N°: ' + data.numero_socio;
+
+      const estadoDiv = document.getElementById('estado-contenedor');
+      if (data.activo) {
+        estadoDiv.innerHTML = '<div class="estado-activo">● SOCIO ACTIVO</div>';
+      } else {
+        estadoDiv.innerHTML = '<div class="estado-inactivo">● SOCIO INACTIVO</div>';
+      }
+
+      const qr = qrcode(0, 'M');
+      qr.addData(window.location.origin + '/verificar/' + token);
+      qr.make();
+      document.getElementById('qr').innerHTML = qr.createImgTag(4);
+
+      document.getElementById('credencial').style.display = 'block';
+
+    } catch (error) {
+      document.getElementById('cargando').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
+    }
+  }
+</script>
+
 
 </body>
 </html>
